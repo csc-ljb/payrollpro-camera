@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>PayrollPro PH - Selfie</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .camera-box {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.15);
+    }
+
+    video {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 10px;
+      background: black;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      max-width: 420px;
+      margin-top: 15px;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #startCamera {
+      background: #1976d2;
+      color: white;
+    }
+
+    #captureSelfie {
+      background: #2e7d32;
+      color: white;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 15px;
+    }
+
+    #preview {
+      width: 100%;
+      max-width: 420px;
+      margin-top: 15px;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="camera-box">
+
+    <h2>PayrollPro PH</h2>
+
+    <p>Attendance Selfie</p>
+
+    <video
+      id="camera"
+      autoplay
+      playsinline
+    ></video>
+
+    <canvas id="canvas"></canvas>
+
+    <button id="startCamera">
+      OPEN CAMERA
+    </button>
+
+    <button
+      id="captureSelfie"
+      disabled
+    >
+      CAPTURE SELFIE
+    </button>
+
+    <p id="status">
+      Camera not started.
+    </p>
+
+    <img
+      id="preview"
+      alt="Selfie Preview"
+    >
+
+  </div>
+
+<script>
+
+let stream = null;
+
+const video =
+  document.getElementById("camera");
+
+const canvas =
+  document.getElementById("canvas");
+
+const startButton =
+  document.getElementById("startCamera");
+
+const captureButton =
+  document.getElementById("captureSelfie");
+
+const status =
+  document.getElementById("status");
+
+const preview =
+  document.getElementById("preview");
+
+
+startButton.addEventListener(
+  "click",
+  async function() {
+
+    try {
+
+      status.textContent =
+        "Requesting camera access...";
+
+      stream =
+        await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user"
+          },
+          audio: false
+        });
+
+      video.srcObject = stream;
+
+      video.onloadedmetadata =
+        function() {
+
+          video.play();
+
+          captureButton.disabled =
+            false;
+
+          status.textContent =
+            "Camera ready. Position your face and capture.";
+
+        };
+
+    } catch (error) {
+
+      console.error(error);
+
+      status.textContent =
+        "Camera error: " +
+        error.name +
+        " - " +
+        error.message;
+
+    }
+
+  }
+);
+
+
+captureButton.addEventListener(
+  "click",
+  function() {
+
+    if (!stream) {
+
+      status.textContent =
+        "Camera is not ready.";
+
+      return;
+
+    }
+
+    canvas.width =
+      video.videoWidth;
+
+    canvas.height =
+      video.videoHeight;
+
+    const context =
+      canvas.getContext("2d");
+
+    context.drawImage(
+      video,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    const imageBase64 =
+      canvas.toDataURL(
+        "image/jpeg",
+        0.90
+      );
+
+    preview.src =
+      imageBase64;
+
+    preview.style.display =
+      "block";
+
+    status.textContent =
+      "Selfie captured successfully.";
+
+    console.log(
+      "SELFIE CAPTURED",
+      imageBase64.substring(0, 50)
+    );
+
+  }
+);
+
+</script>
+
+</body>
+</html>
