@@ -230,9 +230,44 @@ captureButton.addEventListener(
       "Selfie captured successfully.";
 
     console.log(
-      "SELFIE CAPTURED",
-      imageBase64.substring(0, 50)
+      "SELFIE CAPTURED"
     );
+
+    /*
+     * RETURN SELFIE TO PAYROLLPRO
+     */
+
+    if (window.opener) {
+
+      window.opener.postMessage(
+        {
+          type:
+            "PAYROLLPRO_SELFIE_CAPTURE",
+
+          imageBase64:
+            imageBase64
+        },
+        "*"
+      );
+
+      status.textContent =
+        "Selfie captured. Returning to PayrollPro...";
+
+      setTimeout(
+        function() {
+
+          window.close();
+
+        },
+        800
+      );
+
+    } else {
+
+      status.textContent =
+        "Selfie captured. No PayrollPro window detected.";
+
+    }
 
   }
 );
